@@ -1,0 +1,97 @@
+bits 16
+org 0x7c00
+
+
+game_start:
+    mov ah, 0x00
+    mov al, 0x03
+    int 0x10
+
+    mov ax, 0xb800
+    mov es, ax
+    .init:
+    mov di, 0
+    mov si, 0
+    call ball
+    .check:
+    cmp ax, 80*2*25-1
+    jge .done
+    .do:
+    mov di, ax
+    mov si, 0
+    mov dl, 0B_0000_1001
+    call print
+   
+    .step:
+    add ax, 2
+    jmp .check
+    .done:
+    mov di, [ball_x]
+    mov si, [ball_y]
+    call ball
+    mov di,ax
+    mov si, "B"
+    mov dl, 0b_0000_1100
+    call print
+
+    mov ax , [ball_vx]
+    add word [ball_x], ax
+    mov ax , [ball_r]
+    cmp word [ball_x], ax
+    je .inverse
+    mov ax , [ball_l]
+    cmp word [ball_x], ax
+    je .inverse
+    jmp .nomal 
+    .inverse:
+    neg word [ball_vx]
+    .nomal:
+
+    mov ax , [ball_vy]
+    add word [ball_y], ax
+    mov ax , [ball_t]
+    cmp word [ball_y], ax
+    je .inversey
+    mov ax , [ball_b]
+    cmp word [ball_y], ax
+    je .inversey
+    jmp .end
+    .inversey:
+    neg word [ball_vy]
+
+
+    .end:
+    mov bx, [0x_046c]
+    add bx, 1
+    .delay:
+    cmp bx, [0x_046c]
+    jge .delay
+    jmp game_start
+
+ball:
+;di: x si: y
+imul di, di,2
+imul si, si,160
+add di,si
+mov ax,di
+ret
+print:
+;di: si:ascii dl: colar
+mov cx, si
+mov byte [es:di], cl
+mov byte [es:di+1], dl
+ret
+
+ball_x: dw 5
+ball_y: dw 2
+ball_r: dw 79
+ball_l: dw 0
+ball_t: dw 1
+ball_b: dw 24
+ball_vx: dw 1
+ball_vy: dw 1
+
+times 510 - ($-$$) db 0
+
+db 0x55
+db 0xaa 
