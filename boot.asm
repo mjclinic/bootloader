@@ -13,25 +13,48 @@ game_start:
     mov di, 0
     mov si, 0
     call ball
-    .check:
-    cmp ax, 80*2*25-1
-    jge .done
-    .do:
-    mov di, ax
+      
+    .bg:
+    mov di, 0
+    .bg_check:
+    cmp di, 2*80*25-1
+    jge .line1
     mov si, 0
-    mov dl, 0B_0000_1001
+    mov dl, 0B_1111_0000
     call print
-   
-    .step:
-    add ax, 2
-    jmp .check
+    add di, 2
+    jmp .bg_check
+
+    .line1:
+    mov di, 160
+    .line_check:
+    cmp di, 2*80*24-1
+    jge .line_end
+    mov si, 0
+    mov dl, 0B_0000_0000
+    call print
+    add di, 2
+    jmp .line_check
+    
+    .line_end:
+    mov bx, [padle_l]
+    add bx, 160*4
+    mov di, [padle_l]
+    call padle
+
+    mov bx, [padle_r]
+    add bx, 160*4
+    mov di, [padle_r]
+    call padle
+    
+
     .done:
     mov di, [ball_x]
     mov si, [ball_y]
     call ball
     mov di,ax
     mov si, "B"
-    mov dl, 0b_0000_1100
+    mov dl, 0b_0000_1101
     call print
 
     mov ax , [ball_vx]
@@ -59,6 +82,7 @@ game_start:
     .inversey:
     neg word [ball_vy]
 
+  
 
     .end:
     mov bx, [0x_046c]
@@ -76,20 +100,38 @@ add di,si
 mov ax,di
 ret
 print:
-;di: si:ascii dl: colar
+;di: rocation si:ascii dl: colar
 mov cx, si
 mov byte [es:di], cl
 mov byte [es:di+1], dl
 ret
+
+padle:
+
+cmp di, bx
+jg .padle_l_end
+mov si, 0
+mov dl, 0B_1010_0000
+call print
+add di, 160
+jmp padle
+.padle_l_end:
+ret
+
+
+;160*11-2 + ... + 160*15-2
 
 ball_x: dw 5
 ball_y: dw 2
 ball_r: dw 79
 ball_l: dw 0
 ball_t: dw 1
-ball_b: dw 24
+ball_b: dw 23
 ball_vx: dw 1
 ball_vy: dw 1
+
+padle_l: dw 160*10
+padle_r: dw 160*11-2
 
 times 510 - ($-$$) db 0
 
