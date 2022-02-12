@@ -37,9 +37,12 @@ game_start:
     jmp .line_check
     
     .line_end:
-    mov bx, [padle_l]
-    add bx, 160*4
-    mov di, [padle_l]
+    imul ax, [padle_l],160
+    add ax, 160*4
+    mov bx, ax
+    mov ax, [padle_l]
+    imul ax, [padle_l],160
+    mov di, ax
     call padle
 
     mov bx, [padle_r]
@@ -78,11 +81,58 @@ game_start:
     mov ax , [ball_b]
     cmp word [ball_y], ax
     je .inversey
-    jmp .end
+    jmp .keyboard
     .inversey:
     neg word [ball_vy]
-
+    
   
+    .keyboard:
+    mov ah, 0x01
+    int 0x16
+
+    je .end ; je= 1
+
+    mov ah, 0x00
+    int 0x16
+    cmp al, 0x6A
+    je .jump
+    jmp .keyboard2
+
+    .jump:
+    add word [padle_l], 1
+
+    call padle
+
+    .keyboard2:
+    cmp al, 0x6B
+    je .kick
+    jmp .end
+
+    .kick:
+    sub word [padle_l], 1
+
+    call padle
+
+
+
+
+    .callre:
+    cmp [ball_x], 2
+    je .impact
+    .impact:
+    mov ax, [padle_l]
+    div ax, 160
+    jmp .end
+
+
+
+
+
+
+
+
+
+
 
     .end:
     mov bx, [0x_046c]
@@ -119,7 +169,8 @@ jmp padle
 ret
 
 
-;160*11-2 + ... + 160*15-2
+;j: 246A 
+;K: 256B
 
 ball_x: dw 5
 ball_y: dw 2
@@ -130,7 +181,7 @@ ball_b: dw 23
 ball_vx: dw 1
 ball_vy: dw 1
 
-padle_l: dw 160*10
+padle_l: dw 10
 padle_r: dw 160*11-2
 
 times 510 - ($-$$) db 0
