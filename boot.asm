@@ -51,6 +51,21 @@ game_start:
     call padle
     
 
+    .callre:
+    cmp word[ball_x], 1
+    jne .done
+
+    mov ax, word[ball_y]
+    mov bx, word[padle_l]
+    cmp ax, bx
+    jl .done 
+
+    add bx, 4
+    cmp ax, bx
+    jg .done
+
+    neg word[ball_vx]
+    
     .done:
     mov di, [ball_x]
     mov si, [ball_y]
@@ -115,24 +130,7 @@ game_start:
 
 
 
-
-    .callre:
-    cmp [ball_x], 2
-    je .impact
-    .impact:
-    mov ax, [padle_l]
-    div ax, 160
-    jmp .end
-
-
-
-
-
-
-
-
-
-
+    
 
     .end:
     mov bx, [0x_046c]
