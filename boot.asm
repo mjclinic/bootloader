@@ -49,6 +49,8 @@ game_start:
     jmp .keyboard2
 
     .jump:
+    cmp word[padle_l], 20
+    je .keyboard2
     add word [padle_l], 1
 
     call padle
@@ -59,6 +61,8 @@ game_start:
     jmp .line_end
 
     .kick:
+    cmp word[padle_l], 0
+    je .line_end
     sub word [padle_l], 1
 
     call padle
