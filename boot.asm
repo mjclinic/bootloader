@@ -22,10 +22,10 @@ game_start:
 
 
     
-    mov di, 160
+    mov di, 0
     .line_check:
-    cmp di, 2*80*24-1
-    jge .init
+    cmp di, 2*80*25
+    jge .keyboard
     mov si, 0
     mov dl, 0B_1000_0000
     call print
@@ -33,10 +33,6 @@ game_start:
     jmp .line_check
 
     
-    .init:
-    mov di, 0
-    mov si, 0
-    call ball
       
 
   
