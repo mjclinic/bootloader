@@ -21,6 +21,16 @@ org 0x7c00
 game_start:
 
 
+    
+    mov di, 160
+    .line_check:
+    cmp di, 2*80*24-1
+    jge .init
+    mov si, 0
+    mov dl, 0B_1000_0000
+    call print
+    add di, 2
+    jmp .line_check
 
     
     .init:
@@ -28,23 +38,13 @@ game_start:
     mov si, 0
     call ball
       
-    .bg:
-    mov di, 0
-    .bg_check:
-    cmp di, 2*80*25-1
-    jg .keyboard
-    mov si, 0
-    mov dl, 0B_1111_0000
-    call print
-    add di, 2
-    jmp .bg_check
 
   
     .keyboard:
     mov ah, 0x01
     int 0x16
 
-    je .line1 ; je= 1
+    je .line_end ; je= 1
 
     mov ah, 0x00
     int 0x16
@@ -60,7 +60,7 @@ game_start:
     .keyboard2:
     cmp al, 0x6B
     je .kick
-    jmp .line1
+    jmp .line_end
 
     .kick:
     sub word [padle_l], 1
@@ -68,16 +68,6 @@ game_start:
     call padle
 
 
-    .line1:
-    mov di, 160
-    .line_check:
-    cmp di, 2*80*24-1
-    jge .line_end
-    mov si, 0
-    mov dl, 0B_0111_0000
-    call print
-    add di, 2
-    jmp .line_check
     
     .line_end:
     imul ax, [padle_l],160
@@ -150,7 +140,7 @@ game_start:
     call ball
     mov di,ax
     mov si, "B"
-    mov dl, 0b_0000_1101
+    mov dl, 0b_1000_1101
     call print
 
     .end:
