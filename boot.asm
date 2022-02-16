@@ -1,5 +1,6 @@
-bits 16
-org 0x7c00
+;infra structure
+    bits 16
+    org 0x7c00
 
     mov ax, 0xb800
     mov es, ax
@@ -70,20 +71,20 @@ game_start:
 
     
     .line_end:
-    imul ax, [padle_l],160
-    add ax, 160*4
+    imul ax, [padle_l],d_y
+    add ax, d_y*4
     mov bx, ax
     mov ax, [padle_l]
-    imul ax, [padle_l],160
+    imul ax, [padle_l],d_y
     mov di, ax
     call padle
 
     
-    imul bx, [padle_r],160
-    add bx, 158
-    add bx, 160*4
-    imul di, [padle_r],160
-    add di, 158
+    imul bx, [padle_r],d_y
+    add bx, padle_r_x * d_x
+    add bx, d_y*4
+    imul di, [padle_r], d_y
+    add di, padle_r_x * d_x
     call padle
  
 
@@ -162,6 +163,7 @@ game_start:
  
     .com:
     mov ax, word[padle_r]
+    add ax, 2
     cmp ax, word[ball_y]
     je .end
     jg .com_up
@@ -174,6 +176,8 @@ game_start:
     add word[padle_r],1
     jmp .end
     .com_up:
+    cmp word[padle_r], 0
+    je .end
     sub word[padle_r],1
 
     .end:
@@ -186,8 +190,8 @@ game_start:
 
 ball:
 ;di: x si: y
-imul di, [ball_x],2
-imul si, [ball_y],160
+imul di, [ball_x],d_x
+imul si, [ball_y],d_y
 add di,si
 mov ax,di
 ret
@@ -205,7 +209,7 @@ jg .padle_l_end
 mov si, 0
 mov dl, 0B_1010_0000
 call print
-add di, 160
+add di, d_y
 jmp padle
 .padle_l_end:
 ret
@@ -225,6 +229,13 @@ ball_vy: dw 1
 
 padle_l: dw 10
 padle_r: dw 10
+;constance
+padle_l_x equ 0
+padle_r_x equ 79
+d_y equ 160
+d_x equ 2
+
+
 
 times 510 - ($-$$) db 0
 
