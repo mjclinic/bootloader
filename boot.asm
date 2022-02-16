@@ -78,9 +78,12 @@ game_start:
     mov di, ax
     call padle
 
-    mov bx, [padle_r]
+    
+    imul bx, [padle_r],160
+    add bx, 158
     add bx, 160*4
-    mov di, [padle_r]
+    imul di, [padle_r],160
+    add di, 158
     call padle
  
 
@@ -112,17 +115,31 @@ game_start:
 
 
 
-
    
 
     .callre:
     cmp word[ball_x], 1
-    jne .done
+    jne .callre_com
 
     mov ax, word[ball_y]
     mov bx, word[padle_l]
     cmp ax, bx
-    jl .done 
+    jl .callre_com 
+
+    add bx, 4
+    cmp ax, bx
+    jg .callre_com
+
+    neg word[ball_vx]
+    
+    .callre_com:
+    cmp word[ball_x], 78 
+    jne .done
+
+    mov ax, word[ball_y]
+    mov bx, word[padle_r]
+    cmp ax, bx
+    jl .done
 
     add bx, 4
     cmp ax, bx
@@ -131,7 +148,7 @@ game_start:
     neg word[ball_vx]
     
 
-    
+
 
 
     .done:
@@ -142,10 +159,26 @@ game_start:
     mov si, "B"
     mov dl, 0b_1000_1101
     call print
+ 
+    .com:
+    mov ax, word[padle_r]
+    cmp ax, word[ball_y]
+    je .end
+    jg .com_up
+    
+    .com_down:
+    mov ax, word[padle_r]
+    add ax, 4
+    cmp ax, 24
+    je .end
+    add word[padle_r],1
+    jmp .end
+    .com_up:
+    sub word[padle_r],1
 
     .end:
     mov bx, [0x_046c]
-    add bx, 2
+    add bx, 1
     .delay:
     cmp bx, [0x_046c]
     jge .delay
@@ -182,7 +215,7 @@ ret
 ;K: 256B
 
 ball_x: dw 5
-ball_y: dw 2
+ball_y: dw 5
 ball_r: dw 79
 ball_l: dw 0
 ball_t: dw 1
@@ -191,7 +224,7 @@ ball_vx: dw 1
 ball_vy: dw 1
 
 padle_l: dw 10
-padle_r: dw 160*11-2
+padle_r: dw 10
 
 times 510 - ($-$$) db 0
 
