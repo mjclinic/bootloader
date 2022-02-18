@@ -165,20 +165,61 @@ game_start:
     mov ax, word[padle_r]
     add ax, 2
     cmp ax, word[ball_y]
-    je .end
+    je .gamecheck
     jg .com_up
     
     .com_down:
     mov ax, word[padle_r]
     add ax, 4
     cmp ax, 24
-    je .end
+    je .gamecheck
     add word[padle_r],1
-    jmp .end
+    jmp .gamecheck
     .com_up:
     cmp word[padle_r], 0
-    je .end
+    je .gamecheck
     sub word[padle_r],1
+
+    .gamecheck:
+    cmp word[ball_x],0
+    je .cpu_win
+   ; cmp word[ball_x],79
+   ; je .player_win
+    jmp .end
+
+    .cpu_win:
+    mov bx, 0
+    mov di, d_y * 5 + d_x * 36
+    .cpu_loop:
+    mov si, word[cpu_win+bx]
+    mov dl, 0b_1000_1111
+    call print
+    add di,2
+    add bx,2
+    cmp bx, 14
+    je .game_over
+    jmp .cpu_loop
+    
+
+
+    .player_win:
+    mov di, d_y * 5 + d_x * 34
+    mov bx,0
+   .player_loop:
+    mov si, word[player_win+bx]
+    mov dl, 0b_1000_1111
+    call print
+    add di, 2
+    add bx, 2
+    cmp ax, 20
+    je .game_over
+    jmp .player_loop
+
+    .game_over:
+    jmp $   
+
+    
+
 
     .end:
     mov bx, [0x_046c]
@@ -218,7 +259,7 @@ ret
 ;j: 246A 
 ;K: 256B
 
-ball_x: dw 5
+ball_x: dw 39
 ball_y: dw 5
 ball_r: dw 79
 ball_l: dw 0
@@ -234,7 +275,8 @@ padle_l_x equ 0
 padle_r_x equ 79
 d_y equ 160
 d_x equ 2
-
+cpu_win: dw 'c','p','u',' ','w','i','n'
+player_win: dw "player win"
 
 
 times 510 - ($-$$) db 0
