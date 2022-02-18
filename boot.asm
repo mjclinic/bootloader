@@ -22,7 +22,8 @@
 game_start:
 
 
-    
+    mov word[over],0
+
     mov di, 0
     .line_check:
     cmp di, 2*80*25
@@ -33,10 +34,8 @@ game_start:
     add di, 2
     jmp .line_check
 
-    
-      
 
-  
+    
     .keyboard:
     mov ah, 0x01
     int 0x16
@@ -45,7 +44,8 @@ game_start:
 
     mov ah, 0x00
     int 0x16
-    cmp al, 0x6A
+
+    cmp al, 'j'
     je .jump
     jmp .keyboard2
 
@@ -57,7 +57,7 @@ game_start:
     call padle
 
     .keyboard2:
-    cmp al, 0x6B
+    cmp al, 'k'
     je .kick
     jmp .line_end
 
@@ -67,7 +67,7 @@ game_start:
     sub word [padle_l], 1
 
     call padle
-
+    
 
     
     .line_end:
@@ -183,8 +183,6 @@ game_start:
     .gamecheck:
     cmp word[ball_x],0
     je .cpu_win
-   ; cmp word[ball_x],79
-   ; je .player_win
     jmp .end
 
     .cpu_win:
@@ -199,26 +197,19 @@ game_start:
     cmp bx, 14
     je .game_over
     jmp .cpu_loop
-    
-
-
-    .player_win:
-    mov di, d_y * 5 + d_x * 34
-    mov bx,0
-   .player_loop:
-    mov si, word[player_win+bx]
-    mov dl, 0b_1000_1111
-    call print
-    add di, 2
-    add bx, 2
-    cmp ax, 20
-    je .game_over
-    jmp .player_loop
 
     .game_over:
-    jmp $   
-
     
+    mov ah, 0x01
+    int 0x16
+
+    je .game_over ; je= 1
+
+    mov ah, 0x00
+    int 0x16
+    cmp al, 'r'
+    je .end
+    jmp $
 
 
     .end:
@@ -259,7 +250,7 @@ ret
 ;j: 246A 
 ;K: 256B
 
-ball_x: dw 39
+ball_x: dw 5
 ball_y: dw 5
 ball_r: dw 79
 ball_l: dw 0
@@ -270,13 +261,13 @@ ball_vy: dw 1
 
 padle_l: dw 10
 padle_r: dw 10
+over: dw 0
 ;constance
 padle_l_x equ 0
 padle_r_x equ 79
 d_y equ 160
 d_x equ 2
 cpu_win: dw 'c','p','u',' ','w','i','n'
-player_win: dw "player win"
 
 
 times 510 - ($-$$) db 0
