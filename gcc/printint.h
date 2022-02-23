@@ -1,0 +1,1 @@
+void printint(int x);
